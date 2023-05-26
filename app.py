@@ -1,6 +1,4 @@
-# currently need to fix put and patch methods due to serialization
-
-from flask import Flask, render_template
+from flask import Flask, render_template, request
 from flask_restful import Api, Resource, reqparse, abort, fields, marshal_with
 from flask_sqlalchemy import SQLAlchemy
 
@@ -92,10 +90,22 @@ def stock():
     data = StockModel.query.all()
     return render_template("stock-analyzer.html", headers = headers, data = data)
 
+# create route query parameter that display all data from stockprice model related to stock id
+@app.route("/stockprice/<int:stock_id>")
+def stockprice_id(stock_id):
+    headers = []
+    for header in resource_fields_StockPriceModel:
+        headers += header
+    data = StockPriceModel.query.filter_by(stock_id=stock_id).all()
+    return render_template("stock-price.html", headers = headers, data = data)
+
 class StockTracker(Resource):
     # when we return, take this return value and serialize it using resource_fields
     @marshal_with(resource_fields_StockModel)
     def get(self, stock_id):
+        if stock_id == 0:
+             result = StockModel.query.all()
+             return result
         result = StockModel.query.filter_by(id=stock_id).first()
         if not result:
             abort(404, message='Could not find stock with that id')
