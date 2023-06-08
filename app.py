@@ -160,7 +160,7 @@ class StockDayTracker(Resource):
         result = StockModel.query.filter_by(id=web_stock_id).first()
         if not result:
             abort(404, message='Could not find stock with that id')
-        result = StockPriceModel.query.filter_by(id=day_id).first()
+        result = StockPriceModel.query.filter_by(id=day_id, stock_id=web_stock_id).first()
         if not result:
             abort(404, message='Could not find day with that id')
         return result
@@ -174,6 +174,10 @@ class StockDayTracker(Resource):
         if result:
             abort(409, message='Day id taken')
         args = stockPrice_put_args.parse_args()
+        # if args['id'] == None:
+        #     args['id'] = day_id
+        # if args['stock_id'] == None:
+        #     args['stock_id'] = web_stock_id 
         stock = StockPriceModel(id = day_id, stock_id = web_stock_id, open = args['open'], close = args['close'], low = args['low'], high = args['high'], date = args['date'], volume = args['volume'])
         db.session.add(stock)
         db.session.commit()

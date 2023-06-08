@@ -11,9 +11,6 @@ def getStockHistory(symbol, period):
     stock = stock.history(period=period)
     return stock
 
-stock = getStockHistory("AAPL", "1y")
-
-print(stock)
 
 
 
