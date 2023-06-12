@@ -88,6 +88,7 @@ def stock():
         headers += header
     # get all the data from the database
     data = StockModel.query.all()
+    print(data)
     return render_template("stock-analyzer.html", headers = headers, data = data)
 
 # create route query parameter that display all data from stockprice model related to stock id
@@ -157,6 +158,9 @@ class StockDayTracker(Resource):
      
     @marshal_with(resource_fields_StockPriceModel)
     def get(self, day_id, web_stock_id):
+        if day_id == 0:
+            result = StockPriceModel.query.filter_by(stock_id=web_stock_id).all()
+            return result
         result = StockModel.query.filter_by(id=web_stock_id).first()
         if not result:
             abort(404, message='Could not find stock with that id')
@@ -210,6 +214,12 @@ class StockDayTracker(Resource):
     
     @marshal_with(resource_fields_StockPriceModel)
     def delete(self, day_id, web_stock_id):
+        if day_id == 0:
+            result = StockPriceModel.query.filter_by(stock_id=web_stock_id).all()
+            for day in result:
+                db.session.delete(day)
+            db.session.commit()
+            return 204
         result = StockModel.query.filter_by(id=web_stock_id).first()
         if not result:
             abort(404, message='Could not find stock with that id')
