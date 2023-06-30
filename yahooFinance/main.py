@@ -11,6 +11,7 @@ def getStockHistory(symbol, period):
     stock = stock.history(period=period)
     return stock
 
+    
 
 
 

@@ -1,6 +1,12 @@
+# right now the issue is the id seems to already have been taken so sqlalchemy is giving me an error when I try to commit 
+# another record into it. seems like you cannot have multiple same id's otherwise it gives an error? still not understanding 
+
 from flask import Flask, render_template, request
 from flask_restful import Api, Resource, reqparse, abort, fields, marshal_with
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import and_
+import requests
+import candlesticks
 
 app = Flask(__name__)
 api = Api(app)
@@ -21,15 +27,19 @@ class StockModel(db.Model):
     
 #create another model for stock prices
 class StockPriceModel(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     #foreign key to stock model
     stock_id = db.Column(db.Integer, db.ForeignKey('stock_model.id'), nullable=False)
+    day_id = db.Column(db.Integer, nullable=False)
     open = db.Column(db.Float, nullable=False)
     close = db.Column(db.Float, nullable=False)
     high = db.Column(db.Float, nullable=False)
     low = db.Column(db.Float, nullable=False)
     date = db.Column(db.Integer, nullable=False)
     volume = db.Column(db.Integer, nullable=False)
+
+    # Remove unique constraint on columns if present
+    __table_args__ = ()
 
     def __repr__(self):
         return f"Stock(open = {self.open}, close = {self.close}, high = {self.high}, low = {self.low}, date = {self.date}, volume = {self.volume})"
@@ -83,13 +93,25 @@ def index():
 
 @app.route("/stock")
 def stock():
-    headers = []
-    for header in resource_fields_StockModel:
-        headers += header
     # get all the data from the database
     data = StockModel.query.all()
-    print(data)
-    return render_template("stock-analyzer.html", headers = headers, data = data)
+    # get input from html
+    CDL = request.args.get('pattern')
+    for stock in data:
+        dailyData = StockPriceModel.query.filter_by(stock_id=stock.id).all()
+        screener = candlesticks.candlestickPattern(CDL, dailyData)
+        lastDay = screener[-1]
+        print(lastDay)
+        # create empty string to store sign
+        sign = ''
+        if lastDay > 0:
+            sign = 'Bullish'
+        elif lastDay < 0:
+            sign = 'Bearish'
+        else:
+            sign = None
+        print(sign)
+    return render_template("stock-analyzer.html", data = data, candlesticks = candlesticks.candle_names, sign = sign)
 
 # create route query parameter that display all data from stockprice model related to stock id
 @app.route("/stockprice/<int:stock_id>")
@@ -155,7 +177,7 @@ class StockTracker(Resource):
         return 204
     
 class StockDayTracker(Resource):
-     
+
     @marshal_with(resource_fields_StockPriceModel)
     def get(self, day_id, web_stock_id):
         if day_id == 0:
@@ -164,28 +186,27 @@ class StockDayTracker(Resource):
         result = StockModel.query.filter_by(id=web_stock_id).first()
         if not result:
             abort(404, message='Could not find stock with that id')
-        result = StockPriceModel.query.filter_by(id=day_id, stock_id=web_stock_id).first()
+        result = StockPriceModel.query.filter_by(day_id=day_id, stock_id=web_stock_id).first()
         if not result:
             abort(404, message='Could not find day with that id')
         return result
 
     @marshal_with(resource_fields_StockPriceModel)
     def put(self, day_id, web_stock_id):
+        day_id = int(day_id)
+        web_stock_id = int(web_stock_id)
+        args = stockPrice_put_args.parse_args()
         result = StockModel.query.filter_by(id=web_stock_id).first()
         if not result:
-            abort(409, message='No stock with that id')
-        result = StockPriceModel.query.filter_by(id=day_id).first()
+            abort(404, message='No stock with that id')
+        result = StockPriceModel.query.filter_by(stock_id = web_stock_id, day_id = day_id).first()
         if result:
-            abort(409, message='Day id taken')
-        args = stockPrice_put_args.parse_args()
-        # if args['id'] == None:
-        #     args['id'] = day_id
-        # if args['stock_id'] == None:
-        #     args['stock_id'] = web_stock_id 
-        stock = StockPriceModel(id = day_id, stock_id = web_stock_id, open = args['open'], close = args['close'], low = args['low'], high = args['high'], date = args['date'], volume = args['volume'])
-        db.session.add(stock)
+            abort(404, message='Day id taken')
+        daily = StockPriceModel(day_id = day_id, stock_id = web_stock_id, open = args['open'], close = args['close'], low = args['low'], high = args['high'], date = args['date'], volume = args['volume'])
+        print(daily)
+        db.session.add(daily)
         db.session.commit()
-        return stock, 201
+        return daily, 201
     
     @marshal_with(resource_fields_StockPriceModel)
     def patch(self, day_id, web_stock_id):
@@ -223,7 +244,7 @@ class StockDayTracker(Resource):
         result = StockModel.query.filter_by(id=web_stock_id).first()
         if not result:
             abort(404, message='Could not find stock with that id')
-        result = StockPriceModel.query.filter_by(id=day_id).first()
+        result = StockPriceModel.query.filter_by(day_id=day_id).first()
         if not result:
             abort(404, message='Could not find day with that id')
         db.session.delete(result)

@@ -11,43 +11,44 @@
     <title>Stock Analyzer</title>
   </head>
   <body>
-    <div class="container bg-primary">
-        <h1>Analyze Page</h1>
-        <img src="../static/images/microsoft.jpg">
+    <div class="container">
+      <h3>Stocks</h3>
+      <table bgcolor="black" width="700">
+        <tr bgcolor="grey">
+          <th>id</th>
+          <th>name</th>
+          <th>symbol</th>
+          <th>exchange</th>
+          <th>52 week high</th>
+          <th>52 week low</th>
+          <th>avg volume</th>
+        </tr>
+        {% for stock in data %}
+          <tr bgcolor="lightgrey" align="center">
+            <td>{{stock.id}}</td>
+            <td>{{stock.name}}</td>
+            <td>{{stock.symbol}}</td>
+            <td>{{stock.exchange}}</td>
+            <td>{{stock.high_52_weekly}}</td>
+            <td>{{stock.low_52_weekly}}</td>
+            <td>{{stock.avg_volume}}</td>
+          </tr>
+        {% endfor %}
+      </table>
     </div>
     <div class="container">
-        <h3>List of Stocks in the database</h3>
-        <table>
-          <tr>
-            {% for header in headers %}
-            <th>{{header}}</th>
-            {% endfor %}
-          </tr>
-          <tr>
-            {% for stock in data %}
-            <td>{{stock}}</td>
-            {% endfor %}
-          </tr>
-        </table>
+      <form>
+        <select name="pattern">
+          {% for pattern in candlesticks %}
+            <option value={{pattern}}>{{pattern}}</option>
+          {% endfor %}
+        </select>
+        <input type="submit" value="scan">
+      </form>
     </div>
-    <div class="container">
-        <form>
-            <div class="mb-3">
-              <label for="exampleInputEmail1" class="form-label">Email address</label>
-              <input type="email" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp">
-              <div id="emailHelp" class="form-text">We'll never share your email with anyone else.</div>
-            </div>
-            <div class="mb-3">
-              <label for="exampleInputPassword1" class="form-label">Password</label>
-              <input type="password" class="form-control" id="exampleInputPassword1">
-            </div>
-            <div class="mb-3 form-check">
-              <input type="checkbox" class="form-check-input" id="exampleCheck1">
-              <label class="form-check-label" for="exampleCheck1">Check me out</label>
-            </div>
-            <button type="submit" class="btn btn-primary">Submit</button>
-        </form>
-    </div>
+    {% for stock in sign %}
+      if {{stock}} is {{not None}} then {{stock.signal}}
+    {% endfor %}
     <!-- Optional JavaScript; choose one of the two! -->
 
     <!-- Option 1: Bootstrap Bundle with Popper -->
