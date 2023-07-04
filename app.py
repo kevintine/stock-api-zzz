@@ -97,21 +97,31 @@ def stock():
     data = StockModel.query.all()
     # get input from html
     CDL = request.args.get('pattern')
+    sign = []
     for stock in data:
         dailyData = StockPriceModel.query.filter_by(stock_id=stock.id).all()
         screener = candlesticks.candlestickPattern(CDL, dailyData)
-        lastDay = screener[-1]
-        print(lastDay)
-        # create empty string to store sign
-        sign = ''
-        if lastDay > 0:
-            sign = 'Bullish'
-        elif lastDay < 0:
-            sign = 'Bearish'
+        if screener is not None:
+            lastDay = screener[-1]
         else:
-            sign = None
-        print(sign)
-    return render_template("stock-analyzer.html", data = data, candlesticks = candlesticks.candle_names, sign = sign)
+            lastDay = 0
+        # sign = ''
+        # if lastDay > 0:
+        #     sign = 'Bullish'
+        # elif lastDay < 0:
+        #     sign = 'Bearish'
+        # else:
+        #     sign = 'Neutral'
+        # sign = []
+        if lastDay > 0:
+            sign.append('Bullish')
+        elif lastDay < 0:
+            sign.append('Bearish')
+        else:
+            sign.append('Neutral')
+    pair = zip(data, sign)
+    print(pair)
+    return render_template("stock-analyzer.html", data = data, candlesticks = candlesticks.candle_names, sign = sign, pair = pair)
 
 # create route query parameter that display all data from stockprice model related to stock id
 @app.route("/stockprice/<int:stock_id>")
