@@ -105,23 +105,16 @@ def stock():
             lastDay = screener[-1]
         else:
             lastDay = 0
-        # sign = ''
-        # if lastDay > 0:
-        #     sign = 'Bullish'
-        # elif lastDay < 0:
-        #     sign = 'Bearish'
-        # else:
-        #     sign = 'Neutral'
-        # sign = []
         if lastDay > 0:
             sign.append('Bullish')
         elif lastDay < 0:
             sign.append('Bearish')
         else:
             sign.append('Neutral')
+        print(screener)
     pair = zip(data, sign)
     print(pair)
-    return render_template("stock-analyzer.html", data = data, candlesticks = candlesticks.candle_names, sign = sign, pair = pair)
+    return render_template("stock-analyzer.html", data = data, candlesticks = candlesticks.candle_names, pair = pair)
 
 # create route query parameter that display all data from stockprice model related to stock id
 @app.route("/stockprice/<int:stock_id>")
@@ -204,6 +197,7 @@ class StockDayTracker(Resource):
     @marshal_with(resource_fields_StockPriceModel)
     def put(self, day_id, web_stock_id):
         day_id = int(day_id)
+        print(day_id)
         web_stock_id = int(web_stock_id)
         args = stockPrice_put_args.parse_args()
         result = StockModel.query.filter_by(id=web_stock_id).first()
