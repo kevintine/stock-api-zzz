@@ -11,9 +11,6 @@ get
 stock = get.response.json()
 
 stockData = getStockHistory(stock['symbol'], "1y")
-# only get the date
-# print(stockData.index[250].date())
-# print(get.response.json()['id'])
 
 print("Populating database with stock data...")
 

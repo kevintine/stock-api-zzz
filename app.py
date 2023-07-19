@@ -7,6 +7,12 @@ from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import and_
 import requests
 import candlesticks
+import csv
+import pandas as pd
+import yahooFinance.main as yfAPI
+import numpy as np
+import json
+import talib as ta
 
 app = Flask(__name__)
 api = Api(app)
@@ -113,17 +119,68 @@ def stock():
             sign.append('Neutral')
         print(screener)
     pair = zip(data, sign)
-    print(pair)
     return render_template("stock-analyzer.html", data = data, candlesticks = candlesticks.candle_names, pair = pair)
 
-# create route query parameter that display all data from stockprice model related to stock id
-@app.route("/stockprice/<int:stock_id>")
-def stockprice_id(stock_id):
-    headers = []
-    for header in resource_fields_StockPriceModel:
-        headers += header
-    data = StockPriceModel.query.filter_by(stock_id=stock_id).all()
-    return render_template("stock-price.html", headers = headers, data = data)
+@app.route("/stock/fortune500")
+def fortuneFiveHundred():
+    CDL = request.args.get('pattern')
+    #get a list of the fortune 500
+    #read the csv
+    df = pd.read_csv("data/stockList.csv", usecols = [0])
+    #turn datframe into a list
+    stockList = df.iloc[:,0].to_list()
+    updatedList = []
+    #add a ".to" to the end of each stock so that yfinance can properly search
+    for stock in stockList:
+        if isinstance(stock, float):
+            continue
+        updatedList.append(stock + ".TO")
+    sign = []
+    #pass the list through to yfinance to get data
+    for stock in updatedList:
+        try:
+            stockData = yfAPI.getStockHistory(stock, "1y")
+        except:
+            print("An Exception Occured Pulling From The CSV")
+        #convert pandas dataframe to json
+        #issue: not converting all dataframes, is it the dataframe or my for loop
+        #issue update: turns out im only getting one row in the dataframe
+        stockJson = []
+        for i in range(len(stockData)):
+            stockJson.append({"open": stockData.iloc[i]['Open'], "high": stockData.iloc[i]['High'], "low": stockData.iloc[i]['Low'], "close": stockData.iloc[i]['Close']})
+
+        stockJson = json.dumps(stockJson)
+        stockJson = json.loads(stockJson)
+        # convert json to numpy array
+        # stockJson = json.dumps(stockJson)
+        # stockJson = json.loads(stockJson)
+        ##################### create another screener to handle the data
+        # Extract object properties into separate arrays
+        open = [item["open"] for item in stockJson]
+        close = [item["close"] for item in stockJson]
+        high = [item["high"] for item in stockJson]
+        low = [item["low"] for item in stockJson]
+        # Create a structured NumPy array
+        dtype = [("open", float), ("close", float), ("high", float), ("low", float)]
+        numpy_array = np.array(list(zip(open, close, high, low)), dtype=dtype)
+        try:
+            pattern_function = getattr(ta, CDL)
+            pattern_result = pattern_function(numpy_array['open'], numpy_array['close'], numpy_array['high'], numpy_array['low'])
+            if pattern_result is not None:
+                lastDay = pattern_result[-1]
+            else:
+                lastDay = 0
+            if lastDay > 0:
+                sign.append('Bullish')
+            elif lastDay < 0:
+                sign.append('Bearish')
+            else:
+                sign.append('Neutral')
+        except:
+            print("An Exception Occured During Screening")
+    pair = zip(stockList, sign)
+
+    return render_template("tmxStocksWatchList.html", pair=pair, candlesticks = candlesticks.candle_names)
 
 class StockTracker(Resource):
     # when we return, take this return value and serialize it using resource_fields

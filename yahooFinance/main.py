@@ -1,6 +1,5 @@
 import yfinance as yf
 import pandas as pd
-import classes as classes
 
 def getStock(symbol):
     return yf.Ticker(symbol)
