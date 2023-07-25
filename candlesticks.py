@@ -2,38 +2,11 @@ import numpy as np
 import talib as ta
 import requests
 import json
-# import yahooFinance.request_api_calls.get_api as get
+import matplotlib.pyplot as plt
 
 # get list of candlestick patterns
 candle_names = ta.get_function_groups()['Pattern Recognition']
 
-# get
-# id = input("Enter the day of the stock you would like to look up (Enter 0 to get all):")
-# id = int(id)
-
-# response = requests.get('http://localhost:5000/stock/' + get.id + '/' + str(id))
-# #print(response.json())
-
-# data = json.loads(response.text)
-
-# # Extract object properties into separate arrays
-# open = np.array([obj["open"] for obj in data])
-# close = np.array([obj["close"] for obj in data])
-# high = np.array([obj["high"] for obj in data])
-# low = np.array([obj["low"] for obj in data])
-# date = np.array([obj["date"] for obj in data])
-# id = np.array([obj["id"] for obj in data])
-
-# # Create a structured NumPy array
-# dtype = [("open", float), ("close", float), ("high", float), ("low", float), ("date", int), ("id", int)]
-# numpy_array = np.array(list(zip(open, close, high, low, date, id)), dtype=dtype)
-# #print(numpy_array)
-
-# for pattern in candle_names:
-#     print(pattern)
-#     pattern_function = getattr(ta, pattern)
-#     pattern_result = pattern_function(numpy_array['open'], numpy_array['close'], numpy_array['high'], numpy_array['low'])
-#     print(pattern_result)
 
 def candlestickPattern(patternName, dailyStockData):
     if not patternName:
@@ -56,7 +29,65 @@ def candlestickPattern(patternName, dailyStockData):
     pattern_result = pattern_function(numpy_array['open'], numpy_array['close'], numpy_array['high'], numpy_array['low'])
     return pattern_result
 
+#determine if day is green or red stick
+#takes one day
+def greenOrRed(day):
+    color = ''
+    if day[1]['Open'] < day[1]['Close']:
+        color = 'green'
+    else:
+        color = 'red'
+    return color
 
+#analysis function to check a stock for three green days
+#takes historical stock data
+def threeGreenDays(history):
+    dates = []
+    #go through history and find when there were three green bars in a row
+    trend = []
+    for day in history.iterrows():
+        #check for a green bar
+        check = greenOrRed(day)
+        if check == 'green':
+            trend.append(check)
+        else:
+            trend.clear()
+        # if length of the trend is 3, get the date of the day and put it into dates
+        if len(trend) == 3:
+            dates.append(day[0])
+    #give me the end date of those three green bars
+    #put them in a list in the dates variable
+    return dates
 
+# candlestick chart
+def candlestickChart(history):
+    print(history)
+    # create figure
+    plt.figure()
+    #define width of candlestick elements
+    width = .4
+    width2 = .05
+    #define up and down prices
+    up = history[history['Open'] >= history['Close']]
+    down = history[history['Close'] , history['Open']]
+    #define colors
+    col1 = 'green'
+    col2 = 'red'
+    #plot up prices
+    plt.bar(up.index,up.close-up.open,width,bottom=up.open,color=col1)
+    plt.bar(up.index,up.high-up.close,width2,bottom=up.close,color=col1)
+    plt.bar(up.index,up.low-up.open,width2,bottom=up.open,color=col1)
+
+    #plot down prices
+    plt.bar(down.index,down.close-down.open,width,bottom=down.open,color=col2)
+    plt.bar(down.index,down.high-down.open,width2,bottom=down.open,color=col2)
+    plt.bar(down.index,down.low-down.close,width2,bottom=down.close,color=col2)
+
+    #rotate x-axis tick labels
+    plt.xticks(rotation=45, ha='right')
+
+    #display candlestick chart
+    plt.show()
+    return 0
 
 

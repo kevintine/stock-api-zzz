@@ -164,6 +164,8 @@ def fortuneFiveHundred():
         dtype = [("open", float), ("close", float), ("high", float), ("low", float)]
         numpy_array = np.array(list(zip(open, close, high, low)), dtype=dtype)
         try:
+            if CDL is None:
+                continue
             pattern_function = getattr(ta, CDL)
             pattern_result = pattern_function(numpy_array['open'], numpy_array['close'], numpy_array['high'], numpy_array['low'])
             if pattern_result is not None:
@@ -182,6 +184,33 @@ def fortuneFiveHundred():
 
     return render_template("tmxStocksWatchList.html", pair=pair, candlesticks = candlesticks.candle_names)
 
+@app.route("/stock/analysis")
+def analysis():
+    #get a list of the fortune 500
+    #read the csv
+    df = pd.read_csv("data/stockListTesting.csv", usecols = [0])
+    #turn dataframe into a list
+    stockList = df.iloc[:,0].to_list()
+    updatedList = []
+    #add a ".to" to the end of each stock so that yfinance can properly search
+    for stock in stockList:
+        if isinstance(stock, float):
+            continue
+        updatedList.append(stock + ".TO")
+    listOfTrends = []
+    #pass the list through to yfinance to get data
+    for stock in updatedList:
+        try:
+            stockData = yfAPI.getStockHistory(stock, "1y")
+        except:
+            print("An Exception Occured Pulling From The CSV")
+        #sned to matplotlib to create a stock chart
+        candlesticks.candlestickChart(stockData)
+        #send through analysis
+        trend = candlesticks.threeGreenDays(stockData)
+        listOfTrends.append(trend)
+    
+    return render_template("analysis.html", stock = updatedList, trend=listOfTrends)
 class StockTracker(Resource):
     # when we return, take this return value and serialize it using resource_fields
     @marshal_with(resource_fields_StockModel)
