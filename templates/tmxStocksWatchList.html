@@ -19,6 +19,7 @@
     </style>
   </head>
   <body>
+    {% include 'Navbar.html' %}
     <div class="container">
       <h1>Home Page</h1>
       <p>This is the TMX Stocks Watch List Home Page.</p>
@@ -34,15 +35,15 @@
       </form>
     </div>
     <div class="container">
-      <table>
-        <tr bgcolor="grey">
-          <th>symbol</th>
-          <th>trend</th>
+      <table class="table">
+        <tr>
+          <th>Symbol</th>
+          <th>Trend</th>
         </tr>
         {% for symbol, trend in pair %}
-        <tr bgcolor="lightgrey" align="center">
+        <tr>
           <td>{{symbol}}</td>
-          <td class="{% if trend == 'Bullish' %}green{% elif trend == 'Bearish' %}red{% endif %}">{{trend}}</td>
+          <td class="{% if trend == 'Bullish' %}bg-success{% elif trend == 'Bearish' %}bg-danger{% endif %}">{{trend}}</td>
         </tr>
         {% endfor %}
       </table>

@@ -59,6 +59,35 @@ def threeGreenDays(history):
     #put them in a list in the dates variable
     return dates
 
+#find the average high low of a stock's day
+def highLowAverage(history):
+    averageHighLow = 0
+    average = 0
+    #for each day
+    for day in history.iterrows():
+        #subtract the high from the low
+        avg = day[1]['High'] - day[1]['Low']
+        #if the number is negative, make it positive
+        if (avg < 0):
+            avg = avg * -1
+        #add it to the average variable
+        averageHighLow += avg
+    #at the end of the history.itterows()
+    #divide average by 255 to get the average difference in high and low for all days
+    averageHighLow = averageHighLow / 255
+    return averageHighLow
+
+#checks if the day is considered a hammer
+def CDLhammer(day):
+    x = day[1]['High'] - day[1]['Low']
+    x = x * .6
+    x = x + day[1]['Low']
+    if (greenOrRed(day) == 'red'):
+        return False
+    if (day[1]['Open'] > x):
+        return True
+    return False
+    
 # candlestick chart
 def candlestickChart(history):
     print(history)
@@ -90,4 +119,8 @@ def candlestickChart(history):
     plt.show()
     return 0
 
-
+def runCDL(history, pattern):
+    hammers = []
+    for day in history.iterrows():
+        hammers.append(pattern(day))
+    return hammers

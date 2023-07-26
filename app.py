@@ -121,7 +121,7 @@ def stock():
     pair = zip(data, sign)
     return render_template("stock-analyzer.html", data = data, candlesticks = candlesticks.candle_names, pair = pair)
 
-@app.route("/stock/fortune500")
+@app.route("/fortune500")
 def fortuneFiveHundred():
     CDL = request.args.get('pattern')
     #get a list of the fortune 500
@@ -184,7 +184,7 @@ def fortuneFiveHundred():
 
     return render_template("tmxStocksWatchList.html", pair=pair, candlesticks = candlesticks.candle_names)
 
-@app.route("/stock/analysis")
+@app.route("/analysis")
 def analysis():
     #get a list of the fortune 500
     #read the csv
@@ -205,10 +205,11 @@ def analysis():
         except:
             print("An Exception Occured Pulling From The CSV")
         #sned to matplotlib to create a stock chart
-        candlesticks.candlestickChart(stockData)
+        # candlesticks.candlestickChart(stockData)
         #send through analysis
         trend = candlesticks.threeGreenDays(stockData)
         listOfTrends.append(trend)
+        print(candlesticks.runCDL(stockData, candlesticks.CDLhammer))
     
     return render_template("analysis.html", stock = updatedList, trend=listOfTrends)
 class StockTracker(Resource):
