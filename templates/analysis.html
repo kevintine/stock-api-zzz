@@ -25,18 +25,53 @@
       <p>This is my own analysis page to determine if I should buy a stock or not.</p>
     </div>
     <div class="container">
-      <table>
-        <tr bgcolor="grey">
-          {% for symbol in stock %}
-          <th>{{symbol}}</th>
-          {% endfor %}
-        </tr>
-        {% for date in trend %}
-        <tr bgcolor="lightgrey" align="center">
-          <td>{{date}}</td>
-        </tr>
-        {% endfor %}
-      </table>
+      <div class="row">
+        <div class="col-12 col-md-6 col-lg-4">
+          <div class="card h-100">
+            <img src="/static/images/hammer.png" class="card-img-top" alt="hammer">
+            <div class="card-body">
+              <h5 class="card-title">Hammer</h5>
+              <p class="card-text">A hammer is a bullish reversal candlestick pattern that 
+                shows a rejection of a bearish trend. The body of the candlestick is 
+                short with a longer lower wick.</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-12 col-md-6 col-lg-4">
+          <div class="card h-100">
+            <img src="/static/images/bullish-engulfing.png" class="card-img-top" alt="hammer">
+            <div class="card-body">
+              <h5 class="card-title">Bulling Engulfing</h5>
+              <p class="card-text">A bullish engulfing pattern is a candlestick pattern that 
+                forms when a small black candlestick is followed the next day by a large white candlestick, 
+                the body of which completely overlaps or engulfs the body of the previous day's candlestick.</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-12 col-md-6 col-lg-4">
+          <div class="card h-100">
+            <img src="/static/images/inverted-hammer.png" class="card-img-top" alt="hammer">
+            <div class="card-body">
+              <h5 class="card-title">Inverted Hammer</h5>
+              <p class="card-text">The inverted hammer candlestick pattern (or inverse hammer) 
+                is a candlestick that appears on a chart when there is pressure from buyers to push 
+                an asset's price up. It often appears at the bottom of a downtrend, signalling
+                potential bullish reversal.</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-12 col-md-6 col-lg-4">
+          <div class="card h-100">
+            <img src="/static/images/morning-star.png" class="card-img-top" alt="hammer">
+            <div class="card-body">
+              <h5 class="card-title">Morning Star</h5>
+              <p class="card-text">A morning star is a visual pattern consisting of three candlesticks that are
+                interpreted as bullish signs by technical analysts. 
+                A morning star forms following a downward trend and it indicates the start of an upward climb.</p>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
 
     <!-- Optional JavaScript; choose one of the two! -->

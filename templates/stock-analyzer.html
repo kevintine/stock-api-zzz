@@ -46,11 +46,11 @@
             <td>{{stock.avg_volume}}</td>
             <td class="{% if trend == 'Bullish' %}bg-success{% elif trend == 'Bearish' %}bg-danger{% endif %}">{{trend}}</td>
           </tr>
+          <tr>
+              <img src="data:image/png;base64,{{ chart }}" alt="chart">
+          </tr>
         {% endfor %}
       </table>
-    </div>
-    <div class="container">
-      <img src="../imgs/CANDLESTICKQUICKGUIDE-Mar-18-2022-09-42-46-01-AM.jpg" alt="stock-patterns">
     </div>
     <!-- Optional JavaScript; choose one of the two! -->
 
