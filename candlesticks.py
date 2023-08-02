@@ -1,12 +1,14 @@
 import numpy as np
+import pandas as pd
 import talib as ta
-import requests
-import json
 import matplotlib.pyplot as plt
+from matplotlib.dates import DateFormatter, num2date
+from datetime import datetime
+import io
+import base64
 
 # get list of candlestick patterns
 candle_names = ta.get_function_groups()['Pattern Recognition']
-
 
 def candlestickPattern(patternName, dailyStockData):
     if not patternName:
@@ -19,16 +21,76 @@ def candlestickPattern(patternName, dailyStockData):
     high = np.array([obj.high for obj in dailyStockData])
     low = np.array([obj.low for obj in dailyStockData])
     date = np.array([obj.date for obj in dailyStockData])
-    id = np.array([obj.id for obj in dailyStockData])
 
     # Create a structured NumPy array
-    dtype = [("open", float), ("close", float), ("high", float), ("low", float), ("date", int), ("id", int)]
-    numpy_array = np.array(list(zip(open, close, high, low, date, id)), dtype=dtype)
+    dtype = [("open", float), ("close", float), ("high", float), ("low", float), ("date", int)]
+    numpy_array = np.array(list(zip(open, close, high, low, date)), dtype=dtype)
 
     pattern_function = getattr(ta, patternName)
     pattern_result = pattern_function(numpy_array['open'], numpy_array['close'], numpy_array['high'], numpy_array['low'])
     return pattern_result
 
+def createChart(history):
+    # Extract object properties into separate arrays
+    open = np.array([obj.open for obj in history])
+    close = np.array([obj.close for obj in history])
+    high = np.array([obj.high for obj in history])
+    low = np.array([obj.low for obj in history])
+    date = np.array([obj.date for obj in history])
+    id = np.array([obj.id for obj in history])
+    date = [datetime.strptime(str(y), '%Y%m%d').date() for y in date]
+    # Create a structured NumPy array
+    dtype = [("open", float), ("close", float), ("high", float), ("low", float), ("date", datetime), ("id", int)]
+    numpy_array = np.array(list(zip(open, close, high, low, date, id)), dtype=dtype)
+
+    # create lines
+    plt.vlines(x=date, ymin=low, ymax=high, colors='black', linewidth=0.5)
+    # create bars
+    green = []
+    
+    plt.bar(x=date)
+
+    # Sample data
+    # x_values = [1, 2, 3, 4, 5]
+    # y_values = [2, 4, 6, 8, 10]
+    # plt.plot(x_values, y_values, marker='o', linestyle='-', color='b', label='Sample Data')
+    # plt.xlabel('X-axis')
+    # plt.ylabel('Y-axis')
+    # plt.title('Sample Line Chart')
+    # plt.legend()
+
+    # Save the plot as an image in memory
+    buffer = io.BytesIO()
+    plt.savefig(buffer, format='png')
+    buffer.seek(0)
+    plt.close()
+
+    # Convert the image to a base64-encoded string
+    data_uri = base64.b64encode(buffer.read()).decode('utf-8')
+
+    return data_uri
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+############################################## OLD ################################################
 #determine if day is green or red stick
 #takes one day
 def greenOrRed(day):
