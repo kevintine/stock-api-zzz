@@ -35,7 +35,7 @@
           <th>Avg Volume</th>
           <th>Trend</th>
         </tr>
-        {% for stock, trend in pair %}
+        {% for stock, trend, chart in pair %}
           <tr>
             <td>{{stock.id}}</td>
             <td>{{stock.name}}</td>
@@ -47,7 +47,7 @@
             <td class="{% if trend == 'Bullish' %}bg-success{% elif trend == 'Bearish' %}bg-danger{% endif %}">{{trend}}</td>
           </tr>
           <tr>
-              <img src="data:image/png;base64,{{ chart }}" alt="chart">
+            <td colspan="9"><img src="data:image/png;base64,{{ chart }}" alt="Candlestick Chart"></td>
           </tr>
         {% endfor %}
       </table>

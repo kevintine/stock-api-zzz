@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 import talib as ta
 import matplotlib.pyplot as plt
-from matplotlib.dates import DateFormatter, num2date
+from matplotlib.dates import DateFormatter, num2date, WeekdayLocator
 from datetime import datetime
 import io
 import base64
@@ -43,21 +43,20 @@ def createChart(history):
     dtype = [("open", float), ("close", float), ("high", float), ("low", float), ("date", datetime), ("id", int)]
     numpy_array = np.array(list(zip(open, close, high, low, date, id)), dtype=dtype)
 
+    plt.figure(figsize=(15, 7))
     # create lines
-    plt.vlines(x=date, ymin=low, ymax=high, colors='black', linewidth=0.5)
+    plt.vlines(x=numpy_array['date'], ymin=numpy_array['low'], ymax=numpy_array['high'], colors='black', linewidth=0.4)
     # create bars
-    green = []
-    
-    plt.bar(x=date)
+    green_mask = numpy_array['close'] >= numpy_array['open']
+    green_date_filtered = numpy_array['date'][green_mask]
+    green_data = numpy_array[green_mask]
 
-    # Sample data
-    # x_values = [1, 2, 3, 4, 5]
-    # y_values = [2, 4, 6, 8, 10]
-    # plt.plot(x_values, y_values, marker='o', linestyle='-', color='b', label='Sample Data')
-    # plt.xlabel('X-axis')
-    # plt.ylabel('Y-axis')
-    # plt.title('Sample Line Chart')
-    # plt.legend()
+    red_mask = numpy_array['open'] > numpy_array['close']
+    red_date_filtered = numpy_array['date'][red_mask]
+    red_data = numpy_array[red_mask]
+
+    plt.bar(x=green_date_filtered, height=green_data['close'] - green_data['open'], width=0.7, color='green', align='center', bottom=green_data['open'])
+    plt.bar(x=red_date_filtered, height=red_data['open'] - red_data['close'], width=0.7, color='red', align='center', bottom=red_data['close'])
 
     # Save the plot as an image in memory
     buffer = io.BytesIO()

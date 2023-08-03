@@ -104,10 +104,11 @@ def stock():
     # get input from html
     CDL = request.args.get('pattern')
     sign = []
+    chart = []
     for stock in data:
         dailyData = StockPriceModel.query.filter_by(stock_id=stock.id).all()
         screener = candlesticks.candlestickPattern(CDL, dailyData)
-        chart = candlesticks.createChart(dailyData)
+        chart.append(candlesticks.createChart(dailyData))
         if screener is not None:
             lastDay = screener[-1]
         else:
@@ -118,8 +119,8 @@ def stock():
             sign.append('Bearish')
         else:
             sign.append('Neutral')
-    pair = zip(data, sign)
-    return render_template("stock-analyzer.html", data = data, candlesticks = candlesticks.candle_names, pair = pair, chart=chart)
+    pair = zip(data, sign, chart)
+    return render_template("stock-analyzer.html", data = data, candlesticks = candlesticks.candle_names, pair = pair)
 
 @app.route("/analysis")
 def analysis():

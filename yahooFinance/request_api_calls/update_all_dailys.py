@@ -74,9 +74,7 @@ for stock in stock_list:
 #send request to get the daily data for each stock
 for stock in stock_list_id:
     response = requests.get('http://localhost:5000/stock/' + str(stock) + '/0')
-    print("got data")
     daily_data = json.loads(response.text)
-    print("loaded data")
     #search the daily data for the most recent date
     most_recent_id = 0
     most_recent_date = daily_data[0]['date']
