@@ -43,7 +43,7 @@ def createChart(history):
     dtype = [("open", float), ("close", float), ("high", float), ("low", float), ("date", datetime), ("id", int)]
     numpy_array = np.array(list(zip(open, close, high, low, date, id)), dtype=dtype)
 
-    plt.figure(figsize=(15, 7))
+    plt.figure(figsize=(13, 5))
     # create lines
     plt.vlines(x=numpy_array['date'], ymin=numpy_array['low'], ymax=numpy_array['high'], colors='black', linewidth=0.4)
     # create bars

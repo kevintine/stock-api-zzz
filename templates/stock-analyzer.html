@@ -47,7 +47,7 @@
             <td class="{% if trend == 'Bullish' %}bg-success{% elif trend == 'Bearish' %}bg-danger{% endif %}">{{trend}}</td>
           </tr>
           <tr>
-            <td colspan="9"><img src="data:image/png;base64,{{ chart }}" alt="Candlestick Chart"></td>
+            <td colspan="12"><img src="data:image/png;base64,{{ chart }}" alt="Candlestick Chart"></td>
           </tr>
         {% endfor %}
       </table>

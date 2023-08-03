@@ -120,7 +120,7 @@ def stock():
         else:
             sign.append('Neutral')
     pair = zip(data, sign, chart)
-    return render_template("stock-analyzer.html", data = data, candlesticks = candlesticks.candle_names, pair = pair)
+    return render_template("stock-analyzer.html", candlesticks = candlesticks.candle_names, pair = pair)
 
 @app.route("/analysis")
 def analysis():
