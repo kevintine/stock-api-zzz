@@ -124,8 +124,13 @@ def stock():
 
 @app.route("/analysis")
 def analysis():
-
-    return render_template("analysis.html")
+    # take a button press on a pattern
+    CDL = request.args.get('param')
+    data = StockModel.query.all()
+    # search a stock for all instances of that pattern
+    # return the dates of those patterns
+    # create a function that takes the date and depending on how many days after if pricec went up or down
+    return render_template("analysis.html", data = data)
 
 @app.route("/fortune500")
 def fortuneFiveHundred():

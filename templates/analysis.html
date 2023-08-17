@@ -34,6 +34,7 @@
               <p class="card-text">A hammer is a bullish reversal candlestick pattern that 
                 shows a rejection of a bearish trend. The body of the candlestick is 
                 short with a longer lower wick.</p>
+                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#myModal">Click me to open modal</button>
             </div>
           </div>
         </div>
@@ -71,6 +72,26 @@
             </div>
           </div>
         </div>
+      </div>
+    </div>
+
+
+    <!-- Modal -->
+    <div class="modal fade" id="myModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+          <div class="modal-content">
+              <div class="modal-header">
+                  <h5 class="modal-title" id="exampleModalLabel">Modal Title</h5>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+              </div>
+              <div class="modal-body">
+                  {% for stock in data %}
+                    <a href="https://www.example.com/?param=exampleValue" class="btn btn-primary">[stock.id]</a>
+                  {% endfor %}
+                  <p>This is a modal!</p>
+                  <a href="https://www.example.com/?param=exampleValue" class="btn btn-primary">Click here to continue</a>
+              </div>
+          </div>
       </div>
     </div>
 

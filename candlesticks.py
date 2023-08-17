@@ -148,37 +148,6 @@ def CDLhammer(day):
     if (day[1]['Open'] > x):
         return True
     return False
-    
-# candlestick chart
-def candlestickChart(history):
-    print(history)
-    # create figure
-    plt.figure()
-    #define width of candlestick elements
-    width = .4
-    width2 = .05
-    #define up and down prices
-    up = history[history['Open'] >= history['Close']]
-    down = history[history['Close'] , history['Open']]
-    #define colors
-    col1 = 'green'
-    col2 = 'red'
-    #plot up prices
-    plt.bar(up.index,up.close-up.open,width,bottom=up.open,color=col1)
-    plt.bar(up.index,up.high-up.close,width2,bottom=up.close,color=col1)
-    plt.bar(up.index,up.low-up.open,width2,bottom=up.open,color=col1)
-
-    #plot down prices
-    plt.bar(down.index,down.close-down.open,width,bottom=down.open,color=col2)
-    plt.bar(down.index,down.high-down.open,width2,bottom=down.open,color=col2)
-    plt.bar(down.index,down.low-down.close,width2,bottom=down.close,color=col2)
-
-    #rotate x-axis tick labels
-    plt.xticks(rotation=45, ha='right')
-
-    #display candlestick chart
-    plt.show()
-    return 0
 
 def runCDL(history, pattern):
     hammers = []
