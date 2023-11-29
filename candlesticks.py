@@ -2,10 +2,10 @@ import numpy as np
 import pandas as pd
 import talib as ta
 import matplotlib.pyplot as plt
-from matplotlib.dates import DateFormatter, num2date, WeekdayLocator
 from datetime import datetime
 import io
 import base64
+import mplfinance as mpf
 
 # get list of candlestick patterns
 candle_names = ta.get_function_groups()['Pattern Recognition']
@@ -31,126 +31,42 @@ def candlestickPattern(patternName, dailyStockData):
     return pattern_result
 
 def createChart(history):
-    # Extract object properties into separate arrays
-    open = np.array([obj.open for obj in history])
-    close = np.array([obj.close for obj in history])
-    high = np.array([obj.high for obj in history])
-    low = np.array([obj.low for obj in history])
-    date = np.array([obj.date for obj in history])
-    id = np.array([obj.id for obj in history])
-    date = [datetime.strptime(str(y), '%Y%m%d').date() for y in date]
-    # Create a structured NumPy array
-    dtype = [("open", float), ("close", float), ("high", float), ("low", float), ("date", datetime), ("id", int)]
-    numpy_array = np.array(list(zip(open, close, high, low, date, id)), dtype=dtype)
-
-    plt.figure(figsize=(13, 5))
-    # create lines
-    plt.vlines(x=numpy_array['date'], ymin=numpy_array['low'], ymax=numpy_array['high'], colors='black', linewidth=0.4)
-    # create bars
-    green_mask = numpy_array['close'] >= numpy_array['open']
-    green_date_filtered = numpy_array['date'][green_mask]
-    green_data = numpy_array[green_mask]
-
-    red_mask = numpy_array['open'] > numpy_array['close']
-    red_date_filtered = numpy_array['date'][red_mask]
-    red_data = numpy_array[red_mask]
-
-    plt.bar(x=green_date_filtered, height=green_data['close'] - green_data['open'], width=0.7, color='green', align='center', bottom=green_data['open'])
-    plt.bar(x=red_date_filtered, height=red_data['open'] - red_data['close'], width=0.7, color='red', align='center', bottom=red_data['close'])
+    data_dict_list = []
+    for stock in history:
+        data_dict_list.append({
+            'open': stock.open,
+            'close': stock.close,
+            'high': stock.high,
+            'low': stock.low,
+            'date': stock.date,
+            'volume': stock.volume
+    })
+    
+    df = pd.DataFrame(data_dict_list)
+    df['date'] = pd.to_datetime(df['date'], format='%Y%m%d')
+    df.set_index('date', inplace=True)
+    print(df)
+    mpf.plot(df)
 
     # Save the plot as an image in memory
     buffer = io.BytesIO()
-    plt.savefig(buffer, format='png')
+    mpf.savefig(buffer, format='png')
     buffer.seek(0)
-    plt.close()
+    mpf.close()
 
     # Convert the image to a base64-encoded string
     data_uri = base64.b64encode(buffer.read()).decode('utf-8')
 
     return data_uri
 
+# Create a Trading Class
+# Create a Buy and Sell Class
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-############################################## OLD ################################################
-#determine if day is green or red stick
-#takes one day
-def greenOrRed(day):
-    color = ''
-    if day[1]['Open'] < day[1]['Close']:
-        color = 'green'
-    else:
-        color = 'red'
-    return color
-
-#analysis function to check a stock for three green days
-#takes historical stock data
-def threeGreenDays(history):
-    dates = []
-    #go through history and find when there were three green bars in a row
-    trend = []
-    for day in history.iterrows():
-        #check for a green bar
-        check = greenOrRed(day)
-        if check == 'green':
-            trend.append(check)
-        else:
-            trend.clear()
-        # if length of the trend is 3, get the date of the day and put it into dates
-        if len(trend) == 3:
-            dates.append(day[0])
-    #give me the end date of those three green bars
-    #put them in a list in the dates variable
-    return dates
-
-#find the average high low of a stock's day
-def highLowAverage(history):
-    averageHighLow = 0
-    average = 0
-    #for each day
-    for day in history.iterrows():
-        #subtract the high from the low
-        avg = day[1]['High'] - day[1]['Low']
-        #if the number is negative, make it positive
-        if (avg < 0):
-            avg = avg * -1
-        #add it to the average variable
-        averageHighLow += avg
-    #at the end of the history.itterows()
-    #divide average by 255 to get the average difference in high and low for all days
-    averageHighLow = averageHighLow / 255
-    return averageHighLow
-
-#checks if the day is considered a hammer
-def CDLhammer(day):
-    x = day[1]['High'] - day[1]['Low']
-    x = x * .6
-    x = x + day[1]['Low']
-    if (greenOrRed(day) == 'red'):
-        return False
-    if (day[1]['Open'] > x):
-        return True
-    return False
-
-def runCDL(history, pattern):
-    hammers = []
-    for day in history.iterrows():
-        hammers.append(pattern(day))
-    return hammers
+class Trader:
+    def __init__(self, initialAmount):
+        self.balance = initialAmount
+        self.stocksHolding = {
+            'stock' : 'numberHeld'
+        }
+    def displayAccount(self):
+        print(self.balance)

@@ -13,6 +13,7 @@ import yahooFinance.main as yfAPI
 import numpy as np
 import json
 import talib as ta
+import backtesting as backtesting
 
 app = Flask(__name__)
 api = Api(app)
@@ -124,13 +125,18 @@ def stock():
 
 @app.route("/analysis")
 def analysis():
-    # take a button press on a pattern
-    CDL = request.args.get('param')
     data = StockModel.query.all()
-    # search a stock for all instances of that pattern
-    # return the dates of those patterns
-    # create a function that takes the date and depending on how many days after if pricec went up or down
-    return render_template("analysis.html", data = data)
+    # get query parameter arguments
+    CDL = request.args.get('param')
+    stockName = request.args.get('param2')
+    # send stock id to function 
+    dailyData = StockPriceModel.query.filter_by(stock_id=stockName).all()
+    stock = backtesting.FindCandlestickPattern(dailyData)
+    if CDL == 'hammer':
+        print(stock.getDatesForPattern(CDL, stock.CDLhammer()))
+    else:
+        print("Nah")
+    return render_template("analysis.html", data = data, candlesticks = candlesticks.candle_names)
 
 @app.route("/fortune500")
 def fortuneFiveHundred():
